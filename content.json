@@ -1,0 +1,16 @@
+{
+  "latest": {
+    "title": "Добро пожаловать",
+    "text": "Здесь будет последний тутор или новость из канала."
+  },
+  "apps": [
+    {
+      "name": "MtechApp",
+      "version": "1.0",
+      "category": "Мои приложения",
+      "description": "Каталог, туторы и утилиты в одном приложении.",
+      "url": "https://github.com/iosfreeM/MtechApp"
+    }
+  ],
+  "tutorials": []
+}
