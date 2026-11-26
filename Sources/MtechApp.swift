@@ -48,18 +48,23 @@ enum Appearance: String {
 
 struct ThemeBackground: View {
     @AppStorage("themeID") private var themeID = "mint"
+    @AppStorage("classicDesign") private var classic = false
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         let t = theme(for: themeID)
-        LinearGradient(
-            colors: scheme == .dark
-                ? [t.bgTop, Color.black]
-                : [t.accent.opacity(0.28), Color(.systemBackground)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
+        if classic {
+            Color(.systemGroupedBackground).ignoresSafeArea()
+        } else {
+            LinearGradient(
+                colors: scheme == .dark
+                    ? [t.bgTop, Color.black]
+                    : [t.accent.opacity(0.28), Color(.systemBackground)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+        }
     }
 }
 
@@ -68,14 +73,15 @@ struct ThemeBackground: View {
 // На старых системах или старом Xcode — стеклянный блюр (Material).
 
 struct GlassCard: ViewModifier {
-    @AppStorage("glassOn") private var glassOn = true
+    @AppStorage("classicDesign") private var classic = false
     var radius: CGFloat = 18
 
     @ViewBuilder
     func body(content: Self.Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        if !glassOn {
-            content.background(Color(.secondarySystemBackground), in: shape)
+        if classic {
+            content.background(Color(.secondarySystemGroupedBackground),
+                               in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         } else {
             #if compiler(>=6.2)
             if #available(iOS 26.0, *) {
@@ -541,9 +547,6 @@ struct MoreView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 12) {
-                    NavigationLink { TutorialsList() } label: {
-                        MoreRow(title: "Туторы", icon: "book")
-                    }
                     NavigationLink { AppearanceView() } label: {
                         MoreRow(title: "Оформление", icon: "paintpalette")
                     }
@@ -568,7 +571,7 @@ struct MoreView: View {
 struct AppearanceView: View {
     @AppStorage("themeID") private var themeID = "mint"
     @AppStorage("appearance") private var appearance = "dark"
-    @AppStorage("glassOn") private var glassOn = true
+    @AppStorage("classicDesign") private var classic = false
 
     var body: some View {
         ScrollView {
@@ -620,8 +623,8 @@ struct AppearanceView: View {
                 .glassCard()
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Toggle("Эффект стекла", isOn: $glassOn)
-                    Text("На iOS 26 и новее это настоящий Liquid Glass, на старых версиях стеклянный блюр.")
+                    Toggle("Классический дизайн", isOn: $classic)
+                    Text("Без стекла, бликов и градиента: простые сплошные карточки. Нижняя панель вкладок остаётся системной.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
