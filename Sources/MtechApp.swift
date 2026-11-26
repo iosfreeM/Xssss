@@ -8,8 +8,8 @@ let aboutName = "Mtech"
 let aboutText = "Разработчик. Делаю приложения, твики и туторы для iOS."
 let links: [(title: String, icon: String, url: String)] = [
     ("GitHub", "chevron.left.forwardslash.chevron.right", "https://github.com/iosfreeM"),
-    ("TikTok", "play.rectangle", "https://www.tiktok.com/"),   // вставь свою ссылку
-    ("Telegram-канал", "paperplane", "https://t.me/")           // вставь свою ссылку
+    ("TikTok", "play.rectangle", "https://www.tiktok.com/@mtechap"),
+    ("Telegram-канал", "paperplane", "https://t.me/mtech2027")
 ]
 
 // MARK: - Темы
@@ -716,13 +716,24 @@ struct AboutContent: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                ZStack {
-                    Circle().fill(Color.accentColor.opacity(0.25))
-                    Text("M")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
-                        .foregroundColor(.accentColor)
+                Group {
+                    if let data = Data(base64Encoded: avatarBase64),
+                       let image = UIImage(data: data) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        ZStack {
+                            Circle().fill(Color.accentColor.opacity(0.25))
+                            Text("M")
+                                .font(.system(size: 48, weight: .bold, design: .rounded))
+                                .foregroundColor(.accentColor)
+                        }
+                    }
                 }
-                .frame(width: 110, height: 110)
+                .frame(width: 120, height: 120)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.accentColor.opacity(0.7), lineWidth: 2))
                 .padding(.top, 24)
 
                 Text(aboutName).font(.largeTitle.bold())
