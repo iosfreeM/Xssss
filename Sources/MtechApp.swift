@@ -72,7 +72,7 @@ struct GlassCard: ViewModifier {
     var radius: CGFloat = 18
 
     @ViewBuilder
-    func body(content: Content) -> some View {
+    func body(content: Self.Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
         if !glassOn {
             content.background(Color(.secondarySystemBackground), in: shape)
@@ -124,7 +124,7 @@ struct Latest: Codable {
     let text: String
 }
 
-struct Content: Codable {
+struct RemoteContent: Codable {
     var apps: [AppItem]
     var tutorials: [Tutorial]
     var latest: Latest?
@@ -144,7 +144,7 @@ struct Content: Codable {
         latest = try c.decodeIfPresent(Latest.self, forKey: .latest)
     }
 
-    static let fallback = Content(
+    static let fallback = RemoteContent(
         apps: [
             AppItem(name: "MtechApp", version: "1.0", category: "Мои приложения",
                     description: "Каталог, туторы и утилиты в одном приложении.",
@@ -174,16 +174,16 @@ struct Content: Codable {
 // MARK: - Хранилище контента (JSON с GitHub + кэш)
 
 final class Store: ObservableObject {
-    @Published var content: Content
+    @Published var content: RemoteContent
     @Published var loading = false
     @Published var error: String?
 
     init() {
         if let data = UserDefaults.standard.data(forKey: "cachedContent"),
-           let cached = try? JSONDecoder().decode(Content.self, from: data) {
+           let cached = try? JSONDecoder().decode(RemoteContent.self, from: data) {
             content = cached
         } else {
-            content = Content.fallback
+            content = RemoteContent.fallback
         }
     }
 
@@ -192,8 +192,8 @@ final class Store: ObservableObject {
         await MainActor.run { self.loading = true }
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
-            var decoded = try JSONDecoder().decode(Content.self, from: data)
-            if decoded.tutorials.isEmpty { decoded.tutorials = Content.fallback.tutorials }
+            var decoded = try JSONDecoder().decode(RemoteContent.self, from: data)
+            if decoded.tutorials.isEmpty { decoded.tutorials = RemoteContent.fallback.tutorials }
             let result = decoded
             UserDefaults.standard.set(data, forKey: "cachedContent")
             await MainActor.run {
